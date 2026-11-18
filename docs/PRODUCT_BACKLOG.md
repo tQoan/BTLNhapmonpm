@@ -6,6 +6,22 @@
 
 ---
 
+## Pham vi rut gon - v1-3modules (18/11/2026)
+
+He thong chi con **3 chuc nang chinh** (menu 3 nhom):
+
+| # | Chuc nang | Man hinh |
+| - | --------- | -------- |
+| 1 | Ban hang | Ban hang (POS), Hoa don, Khach hang |
+| 2 | Kho & San pham | San pham, Nhap hang, Ton kho, Nha cung cap, Kich thuoc, Mau sac |
+| 3 | Bao cao & Quan tri | Tong quan, Thong ke, Nhan vien, Vai tro |
+
+Da loai bo khoi ung dung: **Lich lam viec + Ca lam viec** (controller, views, service, unit test). Bang `tblCaLamViec`/`tblLichLamViec` van giu trong DB de khong phai migrate.
+
+Phan cong chi tiet 4 nguoi: xem `docs/PHAN_CONG.md`.
+
+---
+
 ## A. Don dep & Nen tang
 
 | ID  | Task                                                               | SP | Priority | Sprint | Status     |
