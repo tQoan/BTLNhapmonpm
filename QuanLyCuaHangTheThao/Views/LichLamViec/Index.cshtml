@@ -1,0 +1,147 @@
+@model QuanLyCuaHangTheThao.Models.LichLamViecViewModel
+@using QuanLyCuaHangTheThao.Services
+@{
+    ViewData["Title"] = "Lịch làm việc";
+    var ngayTrongTuan = (DateTime[])ViewBag.NgayTrongTuan;
+    var laAdmin = (bool)ViewBag.LaAdmin;
+    var tuanTruoc = Model.DauTuan.AddDays(-LichLamViecTinh.SoNgayTuan).ToString("yyyy-MM-dd");
+    var tuanSau = Model.DauTuan.AddDays(LichLamViecTinh.SoNgayTuan).ToString("yyyy-MM-dd");
+    var tuanNay = DateTime.Today.ToString("yyyy-MM-dd");
+    var tuanHienTai = Model.DauTuan.ToString("yyyy-MM-dd");
+}
+<div class="page-head">
+    <div>
+        <h1 class="page-title">Lịch làm việc</h1>
+        <div class="page-subtitle">Tuần @ViewBag.KhoangTuan@(laAdmin ? "" : " — lịch của bạn")</div>
+    </div>
+    <div class="d-flex gap-2">
+        @if (laAdmin)
+        {
+            <a class="btn btn-outline-light" asp-action="CaSapToi">Lịch của tôi</a>
+        }
+    </div>
+</div>
+@if (TempData["Success"] != null) { <div class="alert alert-success py-2">@TempData["Success"]</div> }
+@if (TempData["Error"] != null) { <div class="alert alert-danger py-2">@TempData["Error"]</div> }
+@if (!Model.DanhSachCa.Any())
+{
+    <div class="alert alert-warning py-2">
+        Chưa có ca làm việc nào. <a asp-controller="CaLamViec" asp-action="Create">Thêm ca</a> trước khi phân công lịch.
+    </div>
+}
+
+<div class="stat-strip">
+    <div class="stat-card">
+        <div class="stat-label">Lượt phân công</div>
+        <div class="stat-value">@ViewBag.TongCaTrongTuan</div>
+        <div class="stat-caption">trong tuần</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-label">Nhân viên</div>
+        <div class="stat-value">@ViewBag.TongNv</div>
+        <div class="stat-caption">@ViewBag.NvCoLich có ca</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-label">Tổng giờ phân công</div>
+        <div class="stat-value">@ViewBag.TongGioTrongTuan</div>
+        <div class="stat-caption">giờ trong tuần</div>
+    </div>
+</div>
+
+<div class="toolbar">
+    <div class="d-flex gap-2">
+        <a class="btn btn-sm btn-outline-light" asp-action="Index" asp-route-tuan="@tuanTruoc">‹ Tuần trước</a>
+        <a class="btn btn-sm btn-outline-light" asp-action="Index" asp-route-tuan="@tuanNay">Tuần này</a>
+        <a class="btn btn-sm btn-outline-light" asp-action="Index" asp-route-tuan="@tuanSau">Tuần sau ›</a>
+    </div>
+    <form method="get" class="toolbar-search">
+        <input type="date" name="tuan" class="form-control form-control-fold" value="@tuanHienTai" />
+        <button type="submit" class="btn btn-sm btn-outline-light">Xem</button>
+    </form>
+    <div class="pagination-info">
+        @if (laAdmin)
+        {
+            <form asp-action="CopyTuan" method="post" class="d-inline" onsubmit="return confirm('Sao chép lịch tuần @ViewBag.TuanTruoc sang tuần này? Những ca đã có sẽ được giữ nguyên.');">
+                <input type="hidden" name="tuan" value="@tuanHienTai" />
+                <button type="submit" class="btn btn-sm btn-outline-accent">Sao chép tuần @ViewBag.TuanTruoc</button>
+            </form>
+        }
+    </div>
+</div>
+
+<form asp-action="Save" method="post" class="mt-3">
+    <input type="hidden" name="DauTuan" value="@tuanHienTai" />
+    <div class="card-fold card">
+        <div class="card-body p-0">
+            <table class="table table-fold mb-0">
+                <thead>
+                    <tr>
+                        <th style="width:210px">Nhân viên</th>
+                        @for (int i = 0; i < LichLamViecTinh.SoNgayTuan; i++)
+                        {
+                            var ngay = ngayTrongTuan[i];
+                            var homNay = ngay == DateTime.Today;
+                            <th class="text-center @(homNay ? "table-active" : "")">
+                                <div class="fw-medium">@LichLamViecTinh.TenThuTrongTuan(i)</div>
+                                <div class="small text-secondary">@ngay.ToString("dd/MM")</div>
+                            </th>
+                        }
+                    </tr>
+                </thead>
+                <tbody>
+                    @for (int r = 0; r < Model.Luoi.Count; r++)
+                    {
+                        var hang = Model.Luoi[r];
+                        <tr>
+                            <td>
+                                <div class="fw-medium">@hang.STenNv</div>
+                                <div class="small text-secondary">@hang.SVaiTro</div>
+                                <input type="hidden" name="Luoi[@r].IMaNv" value="@hang.IMaNv" />
+                            </td>
+                            @for (int i = 0; i < LichLamViecTinh.SoNgayTuan; i++)
+                            {
+                                var o = hang.Os[i];
+                                <td class="text-center">
+                                    @if (laAdmin)
+                                    {
+                                        <select name="Luoi[@r].Os[@i].IMaCa" class="form-select form-select-fold form-select-sm">
+                                            <option value="">—</option>
+                                            @foreach (var ca in Model.DanhSachCa)
+                                            {
+                                                <option value="@ca.IMaCa" selected="@(o.IMaCa == ca.IMaCa ? "selected" : null)">@ca.STenCa</option>
+                                            }
+                                        </select>
+                                        <input type="hidden" name="Luoi[@r].Os[@i].IMaLich" value="@o.IMaLich" />
+                                    }
+                                    else
+                                    {
+                                        var ca = Model.DanhSachCa.FirstOrDefault(c => c.IMaCa == o.IMaCa);
+                                        if (ca != null)
+                                        {
+                                            <span class="badge-fold badge-accent">@ca.STenCa</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="text-secondary">—</span>
+                                        }
+                                    }
+                                </td>
+                            }
+                        </tr>
+                    }
+                    @if (!Model.Luoi.Any())
+                    {
+                        <tr><td colspan="8"><div class="empty-state"><div class="empty-icon">📅</div><div>Không có nhân viên nào để phân công ca.</div></div></td></tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+    @if (laAdmin && Model.Luoi.Any())
+    {
+        <div class="mt-3 d-flex gap-2">
+            <button type="submit" class="btn btn-accent px-4">Lưu lịch tuần</button>
+            <span class="align-self-center small text-secondary">Để trống ô nghĩa là ca đó sẽ bị xóa khỏi lịch.</span>
+        </div>
+    }
+</form>

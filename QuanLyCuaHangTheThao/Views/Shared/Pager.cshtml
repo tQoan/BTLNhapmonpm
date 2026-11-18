@@ -1,0 +1,39 @@
+@{
+    int pageIndex = Model.PageIndex;
+    int totalPages = Model.TotalPages;
+
+    var controller = ViewContext.RouteData.Values["controller"]?.ToString();
+    var action = ViewContext.RouteData.Values["action"]?.ToString();
+    var query = Context.Request.Query;
+}
+@if (totalPages > 1)
+{
+    string BuildUrl(int page)
+    {
+        var dict = new Dictionary<string, string>();
+        foreach (var key in query.Keys)
+        {
+            if (key == "page") continue;
+            dict[key] = query[key].ToString();
+        }
+        dict["page"] = page.ToString();
+        return "/" + controller + "/" + action + "?" + string.Join("&", dict.Select(kv => kv.Key + "=" + Uri.EscapeDataString(kv.Value ?? "")));
+    }
+
+    <nav aria-label="Pagination" class="mt-3">
+        <ul class="pagination pagination-sm mb-0 justify-content-center">
+            <li class="page-item @(pageIndex > 1 ? "" : "disabled")">
+                <a class="page-link" href="@BuildUrl(pageIndex - 1)">Trước</a>
+            </li>
+            @for (int i = 1; i <= totalPages; i++)
+            {
+                <li class="page-item @(pageIndex == i ? "active" : "")">
+                    <a class="page-link" href="@BuildUrl(i)">@i</a>
+                </li>
+            }
+            <li class="page-item @(pageIndex < totalPages ? "" : "disabled")">
+                <a class="page-link" href="@BuildUrl(pageIndex + 1)">Sau</a>
+            </li>
+        </ul>
+    </nav>
+}

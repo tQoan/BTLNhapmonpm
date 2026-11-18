@@ -1,0 +1,185 @@
+@model QuanLyCuaHangTheThao.Models.SanPhamViewModel
+@{
+    var nccList = (List<QuanLyCuaHangTheThao.Models.Scaffold.TblNhaCungCap>)ViewBag.NhaCungCaps;
+    var sizes = (List<QuanLyCuaHangTheThao.Models.Scaffold.TblKichThuoc>)ViewBag.KichThuocs;
+    var maus = (List<QuanLyCuaHangTheThao.Models.Scaffold.TblMauSac>)ViewBag.MauSacs;
+    bool editMode = Model.IMaSp > 0;
+}
+<div class="row justify-content-center">
+    <div class="col-lg-10">
+        <div class="card-fold card">
+            <div class="card-header">@(editMode ? "Sửa sản phẩm" : "Thêm sản phẩm mới")</div>
+            <div class="card-body">
+                <form asp-action="@(editMode ? "Edit" : "Create")" method="post" enctype="multipart/form-data">
+                    <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+                    <input type="hidden" asp-for="IMaSp" />
+
+                    <div class="row g-3">
+                        <div class="col-md-8">
+                            <label asp-for="STenSp" class="form-label"></label>
+                            <input asp-for="STenSp" class="form-control form-control-fold" />
+                            <span asp-validation-for="STenSp" class="text-danger"></span>
+                        </div>
+                        <div class="col-md-4">
+                            <label asp-for="LoaiSanPham" class="form-label">Loại sản phẩm</label>
+                            <select asp-for="LoaiSanPham" class="form-select form-select-fold" id="loaiSanPham">
+                                <option value="quan_ao">Quần áo</option>
+                                <option value="giay_dep">Giày dép</option>
+                                <option value="dung_cu">Dụng cụ</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label asp-for="IMaNcc" class="form-label"></label>
+                            <select asp-for="IMaNcc" class="form-select form-select-fold">
+                                <option value="">-- Chọn nhà cung cấp --</option>
+                                @foreach (var ncc in nccList)
+                                {
+                                    <option value="@ncc.IMaNcc">@ncc.STenNcc</option>
+                                }
+                            </select>
+                            <span asp-validation-for="IMaNcc" class="text-danger"></span>
+                        </div>
+                        <div class="col-md-6">
+                            <label asp-for="SXuatXu" class="form-label"></label>
+                            <input asp-for="SXuatXu" class="form-control form-control-fold" />
+                        </div>
+                        <div class="col-md-4">
+                            <label asp-for="FGiaNhap" class="form-label"></label>
+                            <input asp-for="FGiaNhap" class="form-control form-control-fold" type="number" step="0.01" />
+                            <span asp-validation-for="FGiaNhap" class="text-danger"></span>
+                        </div>
+                        <div class="col-md-4">
+                            <label asp-for="FGiaBan" class="form-label"></label>
+                            <input asp-for="FGiaBan" class="form-control form-control-fold" type="number" step="0.01" />
+                            <span asp-validation-for="FGiaBan" class="text-danger"></span>
+                        </div>
+                        <div class="col-md-4">
+                            <label asp-for="DNgayHetHan" class="form-label"></label>
+                            <input asp-for="DNgayHetHan" class="form-control form-control-fold" type="date" />
+                        </div>
+
+                        @* Chuyên biệt theo loại *@
+                        <div class="col-12 sub-field sub-quan_ao">
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <label asp-for="SChatLieu" class="form-label"></label>
+                                    <input asp-for="SChatLieu" class="form-control form-control-fold" />
+                                </div>
+                                <div class="col-md-6">
+                                    <label asp-for="SKieuDang" class="form-label"></label>
+                                    <input asp-for="SKieuDang" class="form-control form-control-fold" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12 sub-field sub-giay_dep" style="display:none;">
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <label asp-for="SChatLieu" class="form-label"></label>
+                                    <input asp-for="SChatLieu" class="form-control form-control-fold" />
+                                </div>
+                                <div class="col-md-6">
+                                    <label asp-for="SLoaiDe" class="form-label"></label>
+                                    <input asp-for="SLoaiDe" class="form-control form-control-fold" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12 sub-field sub-dung_cu" style="display:none;">
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <label asp-for="SChatLieu" class="form-label"></label>
+                                    <input asp-for="SChatLieu" class="form-control form-control-fold" />
+                                </div>
+                                <div class="col-md-6">
+                                    <label asp-for="SCongDung" class="form-label"></label>
+                                    <input asp-for="SCongDung" class="form-control form-control-fold" />
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label">Kích thước</label>
+                            <div class="d-flex flex-wrap gap-2">
+                                @foreach (var sz in sizes)
+                                {
+                                    <label class="me-1">
+                                        <input type="checkbox" name="SelectedSizes" value="@sz.IMaSize"
+                                               class="btn-check" @(Model.SelectedSizes.Contains(sz.IMaSize) ? "checked" : "") />
+                                        <span class="btn btn-sm btn-outline-light">@sz.STenSize</span>
+                                    </label>
+                                }
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Màu sắc</label>
+                            <div class="d-flex flex-wrap gap-2">
+                                @foreach (var mau in maus)
+                                {
+                                    <label class="me-1">
+                                        <input type="checkbox" name="SelectedMaus" value="@mau.IMaMau"
+                                               class="btn-check" @(Model.SelectedMaus.Contains(mau.IMaMau) ? "checked" : "") />
+                                        <span class="btn btn-sm btn-outline-light">@mau.STenMau</span>
+                                    </label>
+                                }
+                            </div>
+                        </div>
+                        <div class="col-12">
+                            <label asp-for="SMoTa" class="form-label"></label>
+                            <textarea asp-for="SMoTa" class="form-control form-control-fold" rows="3"></textarea>
+                        </div>
+                        <div class="col-12">
+                            <label asp-for="HinhAnh" class="form-label">Hình ảnh sản phẩm</label>
+                            <input asp-for="HinhAnh" class="form-control form-control-fold" type="file" accept="image/*" onchange="previewImage(this)" />
+                            <div class="mt-2">
+                                @{
+                                    var currentImg = QuanLyCuaHangTheThao.Controllers.SanPhamController.GetImageUrl(Model.IMaSp);
+                                }
+                                @if (!string.IsNullOrEmpty(currentImg))
+                                {
+                                    <img id="imgPreview" src="@currentImg" style="max-width:120px;max-height:120px;border-radius:8px;object-fit:cover;" />
+                                }
+                                else
+                                {
+                                    <img id="imgPreview" src="" style="max-width:120px;max-height:120px;border-radius:8px;object-fit:cover;display:none;" />
+                                }
+                            </div>
+                            <span asp-validation-for="HinhAnh" class="text-danger"></span>
+                        </div>
+                    </div>
+
+                    <div class="mt-4 d-flex gap-2">
+                        <button type="submit" class="btn btn-light px-4">Lưu</button>
+                        <a class="btn btn-outline-light" asp-action="Index">Hủy</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function previewImage(input) {
+        var img = document.getElementById('imgPreview');
+        if (input.files && input.files[0]) {
+            img.src = URL.createObjectURL(input.files[0]);
+            img.style.display = '';
+        }
+    }
+    (function () {
+        var sel = document.getElementById('loaiSanPham');
+        var fields = {
+            quan_ao: '.sub-quan_ao',
+            giay_dep: '.sub-giay_dep',
+            dung_cu: '.sub-dung_cu'
+        };
+        function show(type) {
+            for (var key in fields) {
+                var el = document.querySelector(fields[key]);
+                if (el) el.style.display = (type === key) ? '' : 'none';
+            }
+        }
+        if (sel) {
+            show(sel.value);
+            sel.addEventListener('change', function () { show(this.value); });
+        }
+    })();
+</script>

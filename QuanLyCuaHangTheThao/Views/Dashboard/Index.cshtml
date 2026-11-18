@@ -1,0 +1,90 @@
+@{
+    ViewData["Title"] = "Tổng quan";
+}
+<div class="page-head">
+    <div>
+        <h1 class="page-title">Tổng quan cửa hàng</h1>
+        <div class="page-subtitle">Chào mừng trở lại, @User.Identity!.Name</div>
+    </div>
+</div>
+
+<div class="stat-strip">
+    <div class="stat-card">
+        <div class="stat-label">Doanh thu hôm nay</div>
+        <div class="stat-value accent">@ViewBag.DoanhThuHomNay.ToString("#,##0") <small style="font-size:.8rem">đ</small></div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-label">Số đơn hôm nay</div>
+        <div class="stat-value">@ViewBag.SoDonHomNay</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-label">Tổng sản phẩm</div>
+        <div class="stat-value">@ViewBag.TongSanPham</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-label">Tồn kho (sp)</div>
+        <div class="stat-value">@ViewBag.TongTonKho</div>
+    </div>
+</div>
+
+<div class="row g-4">
+    <div class="col-lg-8">
+        <div class="card-fold p-3">
+            <div class="card-header bg-transparent border-0 px-1 pt-1">Doanh thu 7 ngày qua</div>
+            <div class="card-body p-1">
+                <canvas id="revenueChart" height="110"></canvas>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-4">
+        <div class="card-fold card">
+            <div class="card-header">Sản phẩm bán chạy</div>
+            <div class="card-body">
+                @if (((List<(string Ten, int SoLuong)>)ViewBag.BanChay).Any())
+                {
+                    <ul class="list-unstyled mb-0">
+                        @foreach (var item in (List<(string Ten, int SoLuong)>)ViewBag.BanChay)
+                        {
+                            <li class="d-flex justify-content-between align-items-center py-2 border-bottom">
+                                <span class="fw-medium">@item.Ten</span>
+                                <span class="badge-fold badge-ok">@item.SoLuong cái</span>
+                            </li>
+                        }
+                    </ul>
+                }
+                else
+                {
+                    <div class="empty-state py-3"><div class="empty-icon">🔥</div>Chưa có dữ liệu bán hàng.</div>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        var labels = '@Html.Raw(ViewBag.ChartLabels)'.split(',');
+        var values = '@Html.Raw(ViewBag.ChartValues)'.split(',').map(Number);
+        var ctx = document.getElementById('revenueChart');
+        if (ctx) {
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Doanh thu (đ)', data: values,
+                        borderColor: '#ffffff', backgroundColor: 'rgba(255,255,255,0.12)',
+                        fill: true, tension: 0.35, pointBackgroundColor: '#e5e7eb', pointBorderColor: '#000'
+                    }]
+                },
+                options: {
+                    plugins: { legend: { labels: { color: '#d1d5db' } } },
+                    scales: {
+                        x: { ticks: { color: '#9ca3af' }, grid: { color: 'rgba(255,255,255,0.06)' } },
+                        y: { ticks: { color: '#9ca3af' }, grid: { color: 'rgba(255,255,255,0.06)' } }
+                    }
+                }
+            });
+        }
+    </script>
+}

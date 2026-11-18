@@ -1,0 +1,37 @@
+@model QuanLyCuaHangTheThao.Models.Scaffold.TblCaLamViec
+@using QuanLyCuaHangTheThao.Services
+@{ ViewData["Title"] = "Thêm ca làm việc"; }
+<div class="row justify-content-center">
+    <div class="col-lg-7">
+        <div class="card-fold card">
+            <div class="card-header">Thêm ca làm việc</div>
+            <div class="card-body">
+                <form asp-action="Create" method="post">
+                    <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+                    <div class="mb-3">
+                        <label asp-for="STenCa" class="form-label">Tên ca</label>
+                        <input asp-for="STenCa" class="form-control form-control-fold" placeholder="VD: Ca sáng, Ca chiều, Ca đêm..." />
+                        <span asp-validation-for="STenCa" class="text-danger"></span>
+                    </div>
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label asp-for="DGioBatDau" class="form-label">Giờ bắt đầu</label>
+                            <input type="time" name="DGioBatDau" step="60" class="form-control form-control-fold" value="@LichLamViecTinh.FormatGio(Model.DGioBatDau)" />
+                            <span asp-validation-for="DGioBatDau" class="text-danger"></span>
+                        </div>
+                        <div class="col-md-6">
+                            <label asp-for="DGioKetThuc" class="form-label">Giờ kết thúc</label>
+                            <input type="time" name="DGioKetThuc" step="60" class="form-control form-control-fold" value="@LichLamViecTinh.FormatGio(Model.DGioKetThuc)" />
+                            <span asp-validation-for="DGioKetThuc" class="text-danger"></span>
+                        </div>
+                    </div>
+                    <div class="form-text mt-2">Giờ kết thúc nhỏ hơn giờ bắt đầu nghĩa là ca qua đêm.</div>
+                    <div class="mt-4 d-flex gap-2">
+                        <button type="submit" class="btn btn-light px-4">Lưu</button>
+                        <a class="btn btn-outline-light" asp-action="Index">Hủy</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

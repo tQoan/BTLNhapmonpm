@@ -1,0 +1,132 @@
+@{
+    Layout = "_LandingLayout";
+    ViewData["Title"] = "Thể Thao Quản Lý";
+}
+<div class="hero-root font-geist">
+    <video
+        class="hero-video"
+        autoplay
+        muted
+        loop
+        playsinline
+        src="https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260622_204221_5339e40b-e73d-4ab0-9c65-79c18c66fd50.mp4"></video>
+
+    <!-- NAVBAR -->
+    <nav class="navbar-fold" id="navbar">
+        <div class="hero-pad-x">
+            <div class="navbar-row">
+                <div class="navbar-left">
+                    <a class="brand" href="/">Thể Thao Quản Lý</a>
+                    <div class="nav-links-desktop">
+                        <a class="nav-link-fold" href="/">Trang chủ</a>
+                        <a class="nav-link-fold" asp-controller="Dashboard" asp-action="Index">Tổng quan</a>
+                        <a class="nav-link-fold" asp-controller="SanPham" asp-action="Index">Sản phẩm</a>
+                        <a class="nav-link-fold" asp-controller="BanHang" asp-action="Index">Bán hàng</a>
+                    </div>
+                </div>
+                <div class="navbar-right">
+                    @if (User.Identity?.IsAuthenticated == true)
+                    {
+                        <a class="btn-chat" asp-controller="Dashboard" asp-action="Index">Xin chào, @User.Identity.Name</a>
+                    }
+                    else
+                    {
+                        <a class="btn-chat" asp-controller="Account" asp-action="Login">Bắt đầu</a>
+                    }
+                    <button class="menu-toggle" id="menuToggle" aria-label="Toggle menu" aria-expanded="false">
+                        <svg class="menu-icon menu-icon-open" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" x2="20" y1="6" y2="6"/><line x1="4" x2="20" y1="12" y2="12"/><line x1="4" x2="20" y1="18" y2="18"/></svg>
+                        <svg class="menu-icon menu-icon-close" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" x2="6" y1="6" y2="18"/><line x1="6" x2="18" y1="6" y2="18"/></svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- MOBILE MENU -->
+    <div class="mobile-menu" id="mobileMenu">
+        <div class="mobile-menu-inner">
+            <a class="mobile-nav-link" href="/">Trang chủ</a>
+            <a class="mobile-nav-link" asp-controller="Dashboard" asp-action="Index">Tổng quan</a>
+            <a class="mobile-nav-link" asp-controller="SanPham" asp-action="Index">Sản phẩm</a>
+            <a class="mobile-nav-link" asp-controller="BanHang" asp-action="Index">Bán hàng</a>
+            @if (User.Identity?.IsAuthenticated == true)
+            {
+                <form asp-controller="Account" asp-action="Logout" method="post" class="d-flex m-0 gap-2">
+                    <button type="submit" class="btn-talk-mobile" style="width:100%; text-align:center;">Đăng xuất</button>
+                </form>
+            }
+            else
+            {
+                <a class="btn-talk-mobile" asp-controller="Account" asp-action="Login">Đăng nhập</a>
+            }
+        </div>
+    </div>
+
+    <!-- HERO CONTENT -->
+    <div class="hero-content hero-pad-x">
+        <div class="hero-top">
+            <p class="hero-badge" id="heroBadge">Quản lý bán hàng & nhập kho thể thao</p>
+            <h1 class="hero-title" id="heroTitle">Quản lý cửa hàng<br />thể thao,<br />nhanh &amp; chính xác.</h1>
+        </div>
+        <div>
+            <p class="hero-description" id="heroSub">
+                Kiểm soát sản phẩm, hóa đơn, tồn kho và nhập hàng — tất cả trong một hệ thống gọn gàng, dễ dàng.
+            </p>
+            <a class="btn-explore-solid" id="btnExplore" asp-controller="Dashboard" asp-action="Index">
+                Khám phá
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" x2="19" y1="12" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+            </a>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        (function () {
+            'use strict';
+
+            // ----- Mobile menu toggle -----
+            var toggle = document.getElementById('menuToggle');
+            var menu = document.getElementById('mobileMenu');
+            var navbar = document.getElementById('navbar');
+            var open = false;
+
+            function setOpen(state) {
+                open = state;
+                if (open) {
+                    menu.classList.add('open');
+                    navbar.classList.add('menu-visible');
+                    toggle.classList.add('menu-open-state');
+                    toggle.setAttribute('aria-expanded', 'true');
+                } else {
+                    menu.classList.remove('open');
+                    navbar.classList.remove('menu-visible');
+                    toggle.classList.remove('menu-open-state');
+                    toggle.setAttribute('aria-expanded', 'false');
+                }
+            }
+
+            toggle.addEventListener('click', function (e) {
+                e.stopPropagation();
+                setOpen(!open);
+            });
+
+            menu.querySelectorAll('a, button').forEach(function (el) {
+                el.addEventListener('click', function () { setOpen(false); });
+            });
+
+            // ----- Staggered fade-slide-up for hero elements -----
+            function animate(el, delay) {
+                if (!el) return;
+                el.classList.add('fade-item');
+                el.classList.add('fade-in');
+                el.style.animationDelay = delay;
+            }
+
+            animate(document.getElementById('heroBadge'), '0.2s');
+            animate(document.getElementById('heroTitle'), '0.4s');
+            animate(document.getElementById('heroSub'), '0.7s');
+            animate(document.getElementById('btnExplore'), '0.9s');
+        })();
+    </script>
+}

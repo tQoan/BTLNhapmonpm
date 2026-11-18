@@ -1,0 +1,81 @@
+@model QuanLyCuaHangTheThao.PaginatedList<QuanLyCuaHangTheThao.Models.Scaffold.TblHoaDon>
+@{
+    ViewData["Title"] = "Hóa đơn";
+}
+<div class="page-head">
+    <div>
+        <h1 class="page-title">Hóa đơn bán hàng</h1>
+        <div class="page-subtitle">Theo dõi và xem chi tiết các đơn bán</div>
+    </div>
+    <a class="btn btn-accent" asp-controller="BanHang" asp-action="Index">+ Bán hàng</a>
+</div>
+@if (TempData["Success"] != null) { <div class="alert alert-success py-2">@TempData["Success"]</div> }
+
+<div class="stat-strip">
+    <div class="stat-card">
+        <div class="stat-label">Số hóa đơn</div>
+        <div class="stat-value">@ViewBag.TongHoaDon</div>
+        <div class="stat-caption">trong khoảng lọc</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-label">Doanh thu</div>
+        <div class="stat-value accent">@ViewBag.TongDoanhThu.ToString("#,##0") <small style="font-size:.8rem">đ</small></div>
+        <div class="stat-caption">sau giảm giá</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-label">Giảm giá</div>
+        <div class="stat-value">@ViewBag.TongGiamGia.ToString("#,##0") <small style="font-size:.8rem">đ</small></div>
+        <div class="stat-caption">tổng chiết khấu</div>
+    </div>
+</div>
+
+<div class="toolbar">
+    <form method="get" asp-action="Index" class="d-flex gap-2 flex-wrap align-items-center">
+        <input type="date" name="tuNgay" value="@ViewBag.TuNgay" class="form-control form-control-fold" style="width:auto" />
+        <span class="text-secondary">→</span>
+        <input type="date" name="denNgay" value="@ViewBag.DenNgay" class="form-control form-control-fold" style="width:auto" />
+        <input type="text" name="search" value="@ViewBag.Search" class="form-control form-control-fold" placeholder="Tìm mã HD, khách hàng, PT thanh toán..." style="width:240px" />
+        <button class="btn btn-accent" type="submit">Lọc</button>
+        <a class="btn btn-outline-accent" asp-action="Index">Xóa lọc</a>
+    </form>
+</div>
+
+<div class="card-fold card">
+    <div class="card-body p-0">
+        <table class="table table-fold mb-0">
+            <thead>
+                <tr><th style="width:80px">Mã HD</th><th>Ngày lập</th><th>Khách hàng</th><th>Nhân viên</th><th class="text-center">PT thanh toán</th><th class="text-end">Giảm giá</th><th class="text-end">Thanh toán</th><th class="text-end">Thao tác</th></tr>
+            </thead>
+            <tbody>
+                @foreach (var hd in Model)
+                {
+                    <tr>
+                        <td><span class="badge-fold badge-accent">#@hd.IMaHd</span></td>
+                        <td>@hd.DNgayLap.ToString("dd/MM/yyyy HH:mm")</td>
+                        <td class="fw-medium">@(hd.IMaKhNavigation?.STenKh ?? "Khách lẻ")</td>
+                        <td>@hd.IMaNvNavigation?.STenNv</td>
+                        <td class="text-center"><span class="badge-fold badge-mute">@hd.SPhuongThucTt</span></td>
+                        <td class="text-end text-secondary">@hd.FGiamGia%</td>
+                        <td class="text-end fw-semibold" style="color:var(--accent)">@hd.FThanhToan.ToString("#,##0") đ</td>
+                        <td class="text-end">
+                            <a class="btn btn-sm btn-outline-accent" asp-action="ChiTiet" asp-route-id="@hd.IMaHd">Chi tiết</a>
+                            <a class="btn btn-sm btn-light" asp-action="In" asp-route-id="@hd.IMaHd" target="_blank">In</a>
+                            @if (User.IsInRole("Admin"))
+                            {
+                                <form method="post" asp-action="Delete" asp-route-id="@hd.IMaHd" class="d-inline" onsubmit="return confirm('Xóa hóa đơn #@hd.IMaHd? Hàng sẽ được hoàn trả tồn kho.');">
+                                    <button type="submit" class="btn btn-sm btn-danger">Xóa</button>
+                                </form>
+                            }
+                        </td>
+                    </tr>
+                }
+                @if (!Model.Any())
+                {
+                    <tr><td colspan="8"><div class="empty-state"><div class="empty-icon">🧾</div><div>Không có hóa đơn nào khớp bộ lọc.</div></div></td></tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<partial name="Pager" model="Model" />

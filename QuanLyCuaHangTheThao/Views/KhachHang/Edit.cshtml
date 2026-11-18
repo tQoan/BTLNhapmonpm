@@ -1,0 +1,34 @@
+@model QuanLyCuaHangTheThao.Models.Scaffold.TblKhachHang
+@{
+    ViewData["Title"] = "Thêm khách hàng";
+    bool editMode = Model.IMaKh > 0;
+}
+<div class="row justify-content-center">
+    <div class="col-lg-7">
+        <div class="card-fold card">
+            <div class="card-header">@(editMode ? "Sửa khách hàng" : "Thêm khách hàng")</div>
+            <div class="card-body">
+                <form asp-action="@(editMode ? "Edit" : "Create")" method="post">
+                    @if (editMode) { <input type="hidden" asp-for="IMaKh" /> }
+                    <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+                    <div class="mb-3">
+                        <label asp-for="STenKh" class="form-label"></label>
+                        <input asp-for="STenKh" class="form-control form-control-fold" />
+                        <span asp-validation-for="STenKh" class="text-danger"></span>
+                    </div>
+                    <div class="mb-3">
+                        <label asp-for="SDienThoai" class="form-label"></label>
+                        <input asp-for="SDienThoai" class="form-control form-control-fold" />
+                        <span asp-validation-for="SDienThoai" class="text-danger"></span>
+                    </div>
+                    <div class="mb-3">
+                        <label asp-for="SDiaChi" class="form-label"></label>
+                        <input asp-for="SDiaChi" class="form-control form-control-fold" />
+                    </div>
+                    <button type="submit" class="btn btn-light px-4">Lưu</button>
+                    <a class="btn btn-outline-light" asp-action="Index">Hủy</a>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

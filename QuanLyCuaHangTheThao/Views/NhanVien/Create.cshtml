@@ -1,0 +1,77 @@
+@model QuanLyCuaHangTheThao.Models.Scaffold.TblNhanVien
+@{
+    ViewData["Title"] = "Thêm nhân viên";
+    var vaiTros = (List<QuanLyCuaHangTheThao.Models.Scaffold.TblVaiTro>)ViewBag.VaiTros;
+    bool editMode = Model.IMaNv > 0;
+    var taiKhoan = Model.TblTaiKhoan;
+}
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="card-fold card">
+            <div class="card-header">@(editMode ? "Sửa nhân viên" : "Thêm nhân viên")</div>
+            <div class="card-body">
+                <form asp-action="@(editMode ? "Edit" : "Create")" method="post">
+                    @if (editMode) { <input type="hidden" asp-for="IMaNv" /> }
+                    <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label asp-for="STenNv" class="form-label"></label>
+                            <input asp-for="STenNv" class="form-control form-control-fold" />
+                            <span asp-validation-for="STenNv" class="text-danger"></span>
+                        </div>
+                        <div class="col-md-6">
+                            <label asp-for="SDienThoai" class="form-label"></label>
+                            <input asp-for="SDienThoai" class="form-control form-control-fold" />
+                            <span asp-validation-for="SDienThoai" class="text-danger"></span>
+                        </div>
+                        <div class="col-md-6">
+                            <label asp-for="SGioiTinh" class="form-label"></label>
+                            <select asp-for="SGioiTinh" class="form-select form-select-fold">
+                                <option value="">-- Chọn --</option>
+                                <option value="Nam">Nam</option>
+                                <option value="Nữ">Nữ</option>
+                                <option value="Khác">Khác</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label asp-for="IMaVaiTro" class="form-label">Vai trò</label>
+                            <select asp-for="IMaVaiTro" class="form-select form-select-fold">
+                                <option value="">-- Chọn --</option>
+                                @foreach (var vt in vaiTros)
+                                {
+                                    <option value="@vt.IMaVaiTro">@vt.STenVaiTro</option>
+                                }
+                            </select>
+                            <span asp-validation-for="IMaVaiTro" class="text-danger"></span>
+                        </div>
+                    </div>
+
+                    <hr class="my-4" />
+                    <h6 class="mb-3">Tài khoản đăng nhập</h6>
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Tên đăng nhập</label>
+                            <input name="sTenDangNhap" class="form-control form-control-fold" value="@(taiKhoan?.STenDangNhap ?? "")" />
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">@(editMode ? "Mật khẩu mới (bỏ trống nếu không đổi)" : "Mật khẩu")</label>
+                            <input name="sMatKhauMoi" type="password" class="form-control form-control-fold" autocomplete="new-password" />
+                        </div>
+                        @if (editMode && taiKhoan != null)
+                        {
+                            <div class="col-12">
+                                <label class="form-label">Mật khẩu hiện tại (cần khi đổi mật khẩu)</label>
+                                <input name="sMatKhau" type="password" class="form-control form-control-fold" autocomplete="current-password" />
+                            </div>
+                        }
+                    </div>
+
+                    <div class="mt-4 d-flex gap-2">
+                        <button type="submit" class="btn btn-light px-4">Lưu</button>
+                        <a class="btn btn-outline-light" asp-action="Index">Hủy</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

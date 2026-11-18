@@ -1,0 +1,86 @@
+@model QuanLyCuaHangTheThao.PaginatedList<QuanLyCuaHangTheThao.Models.Scaffold.TblNhanVien>
+@{
+    ViewData["Title"] = "Nhân viên";
+}
+<div class="page-head">
+    <div>
+        <h1 class="page-title">Nhân viên</h1>
+        <div class="page-subtitle">Quản lý đội ngũ nhân sự và tài khoản đăng nhập</div>
+    </div>
+    <a class="btn btn-accent" asp-action="Create">+ Thêm nhân viên</a>
+</div>
+@if (TempData["Success"] != null) { <div class="alert alert-success py-2">@TempData["Success"]</div> }
+@if (TempData["Error"] != null) { <div class="alert alert-danger py-2">@TempData["Error"]</div> }
+
+<div class="stat-strip">
+    <div class="stat-card">
+        <div class="stat-label">Tổng nhân viên</div>
+        <div class="stat-value">@ViewBag.TongNv</div>
+        <div class="stat-caption">toàn cửa hàng</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-label">Có tài khoản</div>
+        <div class="stat-value accent">@ViewBag.CoTaiKhoan</div>
+        <div class="stat-caption">đã tạo đăng nhập</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-label">Vai trò</div>
+        <div class="stat-value">@ViewBag.TongVaiTro</div>
+        <div class="stat-caption">nhóm phân quyền</div>
+    </div>
+</div>
+
+<div class="toolbar">
+    <form method="get" class="toolbar-search">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <input type="text" class="form-control form-control-fold" name="search" value="@ViewBag.Search" placeholder="Tìm tên, điện thoại, vai trò..." />
+    </form>
+    <div class="pagination-info">
+        @if (!string.IsNullOrWhiteSpace((string?)ViewBag.Search))
+        {
+            <span>Kết quả cho "<strong>@ViewBag.Search</strong>"</span>
+        }
+    </div>
+</div>
+
+<div class="card-fold card">
+    <div class="card-body p-0">
+        <table class="table table-fold mb-0">
+            <thead><tr><th style="width:60px">Mã</th><th>Tên nhân viên</th><th>Giới tính</th><th>Điện thoại</th><th>Vai trò</th><th>Tài khoản</th><th class="text-end">Thao tác</th></tr></thead>
+            <tbody>
+                @foreach (var nv in Model)
+                {
+                    <tr>
+                        <td><span class="badge-fold badge-mute">#@nv.IMaNv</span></td>
+                        <td class="fw-medium">@nv.STenNv</td>
+                        <td>@(nv.SGioiTinh ?? "—")</td>
+                        <td>@(nv.SDienThoai ?? "—")</td>
+                        <td><span class="badge-fold badge-accent">@nv.IMaVaiTroNavigation?.STenVaiTro</span></td>
+                        <td>
+                            @if (nv.TblTaiKhoan != null)
+                            {
+                                <span class="badge-fold badge-ok">@nv.TblTaiKhoan.STenDangNhap</span>
+                            }
+                            else
+                            {
+                                <span class="text-secondary">Chưa có</span>
+                            }
+                        </td>
+                        <td class="text-end">
+                            <a class="btn btn-sm btn-outline-accent" asp-action="Edit" asp-route-id="@nv.IMaNv">Sửa</a>
+                            <form asp-action="Delete" asp-route-id="@nv.IMaNv" method="post" class="d-inline" onsubmit="return confirm('Xóa @nv.STenNv?');">
+                                <button class="btn btn-sm btn-outline-danger" type="submit">Xóa</button>
+                            </form>
+                        </td>
+                    </tr>
+                }
+                @if (!Model.Any())
+                {
+                    <tr><td colspan="7"><div class="empty-state"><div class="empty-icon">🧑‍💼</div><div>Không tìm thấy nhân viên.</div></div></td></tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<partial name="Pager" model="Model" />

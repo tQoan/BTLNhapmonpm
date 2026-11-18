@@ -1,0 +1,80 @@
+@model IEnumerable<dynamic>
+@{
+    ViewData["Title"] = "Báo cáo doanh thu";
+}
+<div class="page-head">
+    <div>
+        <h1 class="page-title">Báo cáo doanh thu</h1>
+        <div class="page-subtitle">Tổng hợp doanh thu, giá vốn và lợi nhuận theo khoảng thời gian</div>
+    </div>
+</div>
+
+<form method="get" asp-action="Index" class="d-flex gap-2 flex-wrap align-items-center mb-3">
+    <input type="date" name="tuNgay" value="@ViewBag.TuNgay" class="form-control form-control-fold" style="width:auto" />
+    <span class="text-secondary">→</span>
+    <input type="date" name="denNgay" value="@ViewBag.DenNgay" class="form-control form-control-fold" style="width:auto" />
+    <button class="btn btn-accent" type="submit">Lọc</button>
+    <a class="btn btn-outline-accent" asp-action="ExportCsv"
+       asp-route-tuNgay="@ViewBag.TuNgay" asp-route-denNgay="@ViewBag.DenNgay">
+        Xuất CSV
+    </a>
+</form>
+
+<div class="stat-strip">
+    <div class="stat-card"><div class="stat-label">Doanh thu</div><div class="stat-value accent">@(((decimal)ViewBag.TongDoanhThu).ToString("#,##0")) đ</div></div>
+    <div class="stat-card"><div class="stat-label">Giá vốn</div><div class="stat-value">@(((decimal)ViewBag.TongGiaVon).ToString("#,##0")) đ</div></div>
+    <div class="stat-card"><div class="stat-label">Lợi nhuận gộp</div><div class="stat-value">@(((decimal)ViewBag.TongLoiNhuan).ToString("#,##0")) đ</div></div>
+    <div class="stat-card"><div class="stat-label">Số hóa đơn</div><div class="stat-value">@ViewBag.SoHoaDon</div></div>
+</div>
+
+<div class="card-fold card mb-4">
+    <div class="card-header">Biểu đồ doanh thu theo ngày</div>
+    <div class="card-body p-3"><canvas id="reportChart" height="90"></canvas></div>
+</div>
+
+<div class="card-fold card">
+    <div class="card-body p-0">
+        <table class="table table-fold mb-0">
+            <thead><tr><th>Ngày</th><th class="text-end">Doanh thu</th><th class="text-end">Giá vốn</th><th class="text-end">Lợi nhuận</th></tr></thead>
+            <tbody>
+                @foreach (var row in Model)
+                {
+                    <tr>
+                        <td>@row.Day.ToString("dd/MM/yyyy")</td>
+                        <td class="text-end">@(((decimal)row.DoanhThu).ToString("#,##0")) đ</td>
+                        <td class="text-end">@(((decimal)row.GiaVon).ToString("#,##0")) đ</td>
+                        <td class="text-end" style="color:var(--accent);font-weight:600">@(((decimal)row.LoiNhuan).ToString("#,##0")) đ</td>
+                    </tr>
+                }
+                @if (!Model.Any()) { <tr><td colspan="4"><div class="empty-state"><div class="empty-icon">📊</div><div>Không có dữ liệu.</div></div></td></tr> }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        var labels = '@Html.Raw(ViewBag.ChartLabels)'.split(',');
+        var values = '@Html.Raw(ViewBag.ChartValues)'.split(',').map(Number);
+        var ctx = document.getElementById('reportChart');
+        if (ctx) {
+            new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Doanh thu (đ)', data: values,
+                        backgroundColor: 'rgba(255,255,255,0.85)', hoverBackgroundColor: '#e5e7eb', borderRadius: 6
+                    }]
+                },
+                options: {
+                    plugins: { legend: { labels: { color: '#d1d5db' } } },
+                    scales: {
+                        x: { ticks: { color: '#9ca3af' }, grid: { color: 'rgba(255,255,255,0.06)' } },
+                        y: { ticks: { color: '#9ca3af' }, grid: { color: 'rgba(255,255,255,0.06)' } }
+                    }
+                }
+            });
+        }
+    </script>
+}
