@@ -26,7 +26,7 @@ public class AccountController : Controller
     public IActionResult Login(string? returnUrl = null)
     {
         if (User.Identity?.IsAuthenticated == true)
-            return RedirectToAction("Index", "Home");
+            return RedirectToAction("Index", "TrangChu");
 
         return View(new LoginViewModel { ReturnUrl = returnUrl });
     }

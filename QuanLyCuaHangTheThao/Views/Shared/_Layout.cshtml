@@ -3,13 +3,6 @@
     {
         return ViewContext.RouteData.Values["controller"]?.ToString() == controller;
     }
-
-    private bool IsActiveAction(string controller, string action)
-    {
-        var values = ViewContext.RouteData.Values;
-        return values["controller"]?.ToString() == controller
-            && values["action"]?.ToString() == action;
-    }
 }
 <!DOCTYPE html>
 <html lang="vi">
@@ -36,66 +29,66 @@
             </div>
 
             <nav class="admin-nav">
-                <div class="nav-group-label">Tổng quan</div>
-                <a class="admin-nav-link ripple @(IsActive("Dashboard") ? "active" : "")" asp-controller="Dashboard" asp-action="Index">
-                    <svg class="nav-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="9" rx="1"/><rect x="14" y="3" width="7" height="5" rx="1"/><rect x="14" y="12" width="7" height="9" rx="1"/><rect x="3" y="16" width="7" height="5" rx="1"/></svg>
-                    <span class="nav-text">Tổng quan</span>
-                </a>
-
+                <!-- 1. BAN HANG -->
                 <div class="nav-group-label">Bán hàng</div>
-                <div class="nav-group has-sub @(IsActive("SanPham") || IsActive("BanHang") || IsActive("HoaDon") || IsActive("KhachHang") ? "open" : "")">
+                <div class="nav-group has-sub @(IsActive("BanHang") || IsActive("HoaDon") || IsActive("KhachHang") ? "open" : "")">
                     <button class="admin-nav-link nav-toggle ripple" type="button">
                         <svg class="nav-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
                         <span class="nav-text">Bán hàng</span>
                         <svg class="nav-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
                     </button>
                     <div class="nav-submenu">
-                        <a class="admin-nav-link nav-sub ripple @(IsActive("SanPham") ? "active" : "")" asp-controller="SanPham" asp-action="Index"><span class="nav-text">Sản phẩm</span></a>
                         <a class="admin-nav-link nav-sub ripple @(IsActive("BanHang") ? "active" : "")" asp-controller="BanHang" asp-action="Index"><span class="nav-text">Bán hàng</span></a>
                         <a class="admin-nav-link nav-sub ripple @(IsActive("HoaDon") ? "active" : "")" asp-controller="HoaDon" asp-action="Index"><span class="nav-text">Hóa đơn</span></a>
                         <a class="admin-nav-link nav-sub ripple @(IsActive("KhachHang") ? "active" : "")" asp-controller="KhachHang" asp-action="Index"><span class="nav-text">Khách hàng</span></a>
                     </div>
                 </div>
 
-                <div class="nav-group-label">Nhập hàng</div>
-                <div class="nav-group has-sub @(IsActive("NhapHang") || IsActive("TonKho") || IsActive("NhaCungCap") ? "open" : "")">
+                <!-- 2. KHO & SAN PHAM -->
+                <div class="nav-group-label">Kho &amp; Sản phẩm</div>
+                <div class="nav-group has-sub @(IsActive("SanPham") || IsActive("NhapHang") || IsActive("TonKho") || IsActive("NhaCungCap") || IsActive("KichThuoc") || IsActive("MauSac") ? "open" : "")">
                     <button class="admin-nav-link nav-toggle ripple" type="button">
                         <svg class="nav-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 8 12 3 3 8v8l9 5 9-5V8z"/><line x1="3" y1="8" x2="12" y2="13"/><line x1="12" y1="13" x2="21" y2="8"/><line x1="12" y1="13" x2="12" y2="21"/></svg>
-                        <span class="nav-text">Nhập hàng</span>
+                        <span class="nav-text">Kho &amp; Sản phẩm</span>
                         <svg class="nav-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
                     </button>
                     <div class="nav-submenu">
+                        <a class="admin-nav-link nav-sub ripple @(IsActive("SanPham") ? "active" : "")" asp-controller="SanPham" asp-action="Index"><span class="nav-text">Sản phẩm</span></a>
                         <a class="admin-nav-link nav-sub ripple @(IsActive("NhapHang") ? "active" : "")" asp-controller="NhapHang" asp-action="Index"><span class="nav-text">Nhập hàng</span></a>
                         <a class="admin-nav-link nav-sub ripple @(IsActive("TonKho") ? "active" : "")" asp-controller="TonKho" asp-action="Index"><span class="nav-text">Tồn kho</span></a>
                         <a class="admin-nav-link nav-sub ripple @(IsActive("NhaCungCap") ? "active" : "")" asp-controller="NhaCungCap" asp-action="Index"><span class="nav-text">Nhà cung cấp</span></a>
-                    </div>
-                </div>
-
-                <div class="nav-group-label">Quản lý</div>
-                <div class="nav-group has-sub @(IsActive("NhanVien") || IsActive("CaLamViec") || IsActive("LichLamViec") || IsActive("KichThuoc") || IsActive("MauSac") || IsActive("VaiTro") ? "open" : "")">
-                    <button class="admin-nav-link nav-toggle ripple" type="button">
-                        <svg class="nav-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
-                        <span class="nav-text">Cài đặt</span>
-                        <svg class="nav-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
-                    </button>
-                    <div class="nav-submenu">
-                        @if (User.IsInRole("Admin"))
-                        {
-                            <a class="admin-nav-link nav-sub ripple @(IsActive("NhanVien") ? "active" : "")" asp-controller="NhanVien" asp-action="Index"><span class="nav-text">Nhân viên</span></a>
-                            <a class="admin-nav-link nav-sub ripple @(IsActive("CaLamViec") ? "active" : "")" asp-controller="CaLamViec" asp-action="Index"><span class="nav-text">Ca làm việc</span></a>
-                            <a class="admin-nav-link nav-sub ripple @(IsActiveAction("LichLamViec", "Index") ? "active" : "")" asp-controller="LichLamViec" asp-action="Index"><span class="nav-text">Lịch làm việc</span></a>
-                            <a class="admin-nav-link nav-sub ripple @(IsActive("VaiTro") ? "active" : "")" asp-controller="VaiTro" asp-action="Index"><span class="nav-text">Vai trò</span></a>
-                        }
-                        <a class="admin-nav-link nav-sub ripple @(IsActiveAction("LichLamViec", "CaSapToi") ? "active" : "")" asp-controller="LichLamViec" asp-action="CaSapToi"><span class="nav-text">Lịch của tôi</span></a>
                         <a class="admin-nav-link nav-sub ripple @(IsActive("KichThuoc") ? "active" : "")" asp-controller="KichThuoc" asp-action="Index"><span class="nav-text">Kích thước Size</span></a>
                         <a class="admin-nav-link nav-sub ripple @(IsActive("MauSac") ? "active" : "")" asp-controller="MauSac" asp-action="Index"><span class="nav-text">Màu sắc</span></a>
                     </div>
                 </div>
-                <div class="nav-group-label">Thống kê</div>
-                <a class="admin-nav-link ripple @(IsActive("BaoCao") ? "active" : "")" asp-controller="BaoCao" asp-action="Index">
-                    <svg class="nav-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
-                    <span class="nav-text">Thống kê</span>
+
+                <!-- 3. BAO CAO & QUAN TRI -->
+                <div class="nav-group-label">Báo cáo &amp; Quản trị</div>
+                <a class="admin-nav-link ripple @(IsActive("Dashboard") ? "active" : "")" asp-controller="Dashboard" asp-action="Index">
+                    <svg class="nav-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="9" rx="1"/><rect x="14" y="3" width="7" height="5" rx="1"/><rect x="14" y="12" width="7" height="9" rx="1"/><rect x="3" y="16" width="7" height="5" rx="1"/></svg>
+                    <span class="nav-text">Tổng quan</span>
                 </a>
+                @if (User.IsInRole("Admin") || User.IsInRole("Kế toán"))
+                {
+                    <a class="admin-nav-link ripple @(IsActive("BaoCao") ? "active" : "")" asp-controller="BaoCao" asp-action="Index">
+                        <svg class="nav-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+                        <span class="nav-text">Thống kê</span>
+                    </a>
+                }
+                @if (User.IsInRole("Admin"))
+                {
+                    <div class="nav-group has-sub @(IsActive("NhanVien") || IsActive("VaiTro") ? "open" : "")">
+                        <button class="admin-nav-link nav-toggle ripple" type="button">
+                            <svg class="nav-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+                            <span class="nav-text">Quản trị</span>
+                            <svg class="nav-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+                        </button>
+                        <div class="nav-submenu">
+                            <a class="admin-nav-link nav-sub ripple @(IsActive("NhanVien") ? "active" : "")" asp-controller="NhanVien" asp-action="Index"><span class="nav-text">Nhân viên</span></a>
+                            <a class="admin-nav-link nav-sub ripple @(IsActive("VaiTro") ? "active" : "")" asp-controller="VaiTro" asp-action="Index"><span class="nav-text">Vai trò</span></a>
+                        </div>
+                    </div>
+                }
             </nav>
 
             <!-- Sidebar footer : profile + dropdown -->
