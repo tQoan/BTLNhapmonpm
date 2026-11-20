@@ -1,0 +1,22 @@
+@model QuanLyCuaHangTheThao.Models.Scaffold.TblMauSac
+@{ ViewData["Title"] = "Sửa màu sắc"; }
+<div class="row justify-content-center">
+    <div class="col-lg-7">
+        <div class="card-fold card">
+            <div class="card-header">Sửa màu sắc</div>
+            <div class="card-body">
+                <form asp-action="Edit" method="post">
+                    <input type="hidden" asp-for="IMaMau" />
+                    <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+                    <div class="mb-3">
+                        <label asp-for="STenMau" class="form-label">Tên màu</label>
+                        <input asp-for="STenMau" class="form-control form-control-fold" />
+                        <span asp-validation-for="STenMau" class="text-danger"></span>
+                    </div>
+                    <button type="submit" class="btn btn-light px-4">Lưu</button>
+                    <a class="btn btn-outline-light" asp-action="Index">Hủy</a>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
