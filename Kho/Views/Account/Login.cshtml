@@ -1,0 +1,44 @@
+@model QuanLyCuaHangTheThao.Models.LoginViewModel
+@{
+    Layout = "_LandingLayout";
+    ViewData["Title"] = "Đăng nhập";
+}
+<div class="hero-root" style="display:flex; align-items:center; justify-content:center;">
+    <div style="position:absolute; inset:0; background:#000;"></div>
+    <div style="position:relative; z-index:10; width:100%; max-width:400px; padding:0 24px;">
+        <a href="/" class="btn-talk-desktop" style="display:inline-flex; margin-bottom:24px;">← Quay lại</a>
+        <div style="background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.14); border-radius:16px; padding:36px 28px; backdrop-filter:blur(12px);">
+            <div class="brand" style="font-size:1.5rem; margin-bottom:4px;">Foldcraft Shop</div>
+            <p style="color:rgba(255,255,255,0.55); font-size:0.9rem; margin-bottom:24px;">Đăng nhập vào hệ thống quản lý cửa hàng thể thao</p>
+
+            @if (!ViewData.ModelState.IsValid && ViewData.ModelState.ErrorCount > 0)
+            {
+                <div style="background:rgba(255,80,80,0.12); border:1px solid rgba(255,80,80,0.3); color:#ff9d9d; border-radius:8px; padding:10px 14px; font-size:0.85rem; margin-bottom:16px;">
+                    @Html.ValidationSummary(true)
+                </div>
+            }
+
+            <form asp-action="Login" method="post">
+                <input type="hidden" asp-for="ReturnUrl" />
+                <div style="margin-bottom:16px;">
+                    <label asp-for="TenDangNhap" style="display:block; font-size:0.8rem; color:rgba(255,255,255,0.7); margin-bottom:6px;">Tên đăng nhập</label>
+                    <input asp-for="TenDangNhap" class="form-control" style="background:#000; border:1px solid rgba(255,255,255,0.2); color:#fff; padding:11px 14px; border-radius:8px; width:100%;" />
+                    <span asp-validation-for="TenDangNhap" style="color:#ff9d9d; font-size:0.8rem;"></span>
+                </div>
+                <div style="margin-bottom:24px;">
+                    <label asp-for="MatKhau" style="display:block; font-size:0.8rem; color:rgba(255,255,255,0.7); margin-bottom:6px;">Mật khẩu</label>
+                    <input asp-for="MatKhau" class="form-control" style="background:#000; border:1px solid rgba(255,255,255,0.2); color:#fff; padding:11px 14px; border-radius:8px; width:100%;" />
+                    <span asp-validation-for="MatKhau" style="color:#ff9d9d; font-size:0.8rem;"></span>
+                </div>
+                <button type="submit" class="btn-talk-desktop" style="width:100%; text-align:center; padding:12px; border:none; cursor:pointer;">Đăng nhập</button>
+                <div style="margin-top:18px; font-size:0.75rem; color:rgba(255,255,255,0.45); text-align:center;">
+                    Tài khoản demo: admin / NV-01 / NV-02 — mật khẩu 123
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

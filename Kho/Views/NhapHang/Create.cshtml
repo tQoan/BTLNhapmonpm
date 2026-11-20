@@ -1,0 +1,147 @@
+@model QuanLyCuaHangTheThao.Models.PhieuNhapViewModel
+@{
+    ViewData["Title"] = "Lập phiếu nhập";
+    var nccList = (List<QuanLyCuaHangTheThao.Models.Scaffold.TblNhaCungCap>)ViewBag.NhaCungCaps;
+    var sanPhams = (List<QuanLyCuaHangTheThao.Models.Scaffold.TblSanPham>)ViewBag.SanPhams;
+    var variants = (string)ViewBag.VariantsJson;
+}
+<div class="card-fold card">
+    <div class="card-header">Lập phiếu nhập hàng</div>
+    <div class="card-body">
+        <form asp-action="Create" method="post" id="phieuNhapForm">
+            <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+            <div class="row g-3 align-items-end mb-4">
+                <div class="col-md-5">
+                    <label asp-for="IMaNcc" class="form-label">Nhà cung cấp</label>
+                    <select asp-for="IMaNcc" class="form-select form-select-fold">
+                        <option value="">-- Chọn nhà cung cấp --</option>
+                        @foreach (var ncc in nccList)
+                        {
+                            <option value="@ncc.IMaNcc">@ncc.STenNcc</option>
+                        }
+                    </select>
+                    <span asp-validation-for="IMaNcc" class="text-danger"></span>
+                </div>
+                <div class="col-md-5">
+                    <label asp-for="DNgayNhap" class="form-label">Ngày nhập</label>
+                    <input asp-for="DNgayNhap" class="form-control form-control-fold" type="datetime-local" />
+                </div>
+                <div class="col-md-2 d-grid">
+                    <button type="button" class="btn btn-light" onclick="addLine()">+ Thêm dòng</button>
+                </div>
+            </div>
+
+            <table class="table table-fold align-middle">
+                <thead>
+                    <tr>
+                        <th style="width:26%">Sản phẩm</th>
+                        <th style="width:15%">Kích thước</th>
+                        <th style="width:15%">Màu sắc</th>
+                        <th style="width:14%">Số lượng</th>
+                        <th style="width:18%">Đơn giá nhập</th>
+                        <th style="width:12%"></th>
+                    </tr>
+                </thead>
+                <tbody id="linesBody"></tbody>
+            </table>
+
+            <div class="d-flex justify-content-end gap-2 mt-3">
+                <a class="btn btn-outline-light" asp-action="Index">Hủy</a>
+                <button type="submit" class="btn btn-light px-4">Lưu phiếu nhập</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        var products = [
+            @foreach (var sp in sanPhams)
+            {
+                <text>{ id: @sp.IMaSp, name: '@sp.STenSp.Replace("'", "\\'")' },</text>
+            }
+        ];
+
+        var variants = @Html.Raw(variants);
+
+        var rowIndex = 0;
+        function addLine(data) {
+            var tbody = document.getElementById('linesBody');
+            var tr = document.createElement('tr');
+            tr.id = 'row-' + rowIndex;
+
+            // product select
+            var prodOpts = '<option value="">-- Chọn --</option>';
+            products.forEach(function (p) {
+                prodOpts += '<option value="' + p.id + '"' + (data && data.IMaSp === p.id ? ' selected' : '') + '>' + p.name + '</option>';
+            });
+
+            tr.innerHTML =
+                '<td><select class="form-select form-select-fold product-sel" data-i="' + rowIndex + '">' + prodOpts + '</select></td>' +
+                '<td><select class="form-select form-select-fold size-sel" name="Lines[' + rowIndex + '].IMaSize" data-i="' + rowIndex + '"><option value="">--</option></select></td>' +
+                '<td><select class="form-select form-select-fold mau-sel" name="Lines[' + rowIndex + '].IMaMau" data-i="' + rowIndex + '"><option value="">--</option></select></td>' +
+                '<td><input class="form-control form-control-fold" type="number" min="1" name="Lines[' + rowIndex + '].ISoLuong" value="' + ((data && data.ISoLuong) || 1) + '" /></td>' +
+                '<td><input class="form-control form-control-fold" type="number" step="0.01" min="0" name="Lines[' + rowIndex + '].FDonGiaNhap" value="' + ((data && data.FDonGiaNhap) || 0) + '" /></td>' +
+                '<td><button type="button" class="btn btn-sm btn-outline-danger" onclick="removeLine(' + rowIndex + ')">Xóa</button></td>';
+
+            // hidden product field
+            var hidden = document.createElement('input');
+            hidden.type = 'hidden';
+            hidden.name = 'Lines[' + rowIndex + '].IMaSp';
+            hidden.value = data ? (data.IMaSp || 0) : 0;
+            tr.querySelector('.product-sel').parentNode.appendChild(hidden);
+
+            tbody.appendChild(tr);
+            attachRow(tr, rowIndex, data);
+            rowIndex++;
+        }
+
+        function removeLine(id) {
+            var row = document.getElementById('row-' + id);
+            if (row) row.remove();
+        }
+
+        function attachRow(tr, idx, data) {
+            var prodSel = tr.querySelector('.product-sel');
+            var sizeSel = tr.querySelector('.size-sel');
+            var mauSel = tr.querySelector('.mau-sel');
+
+            function fillVariants() {
+                var pid = parseInt(prodSel.value);
+                var v = variants[pid] || { sizes: [], maus: [] };
+                sizeSel.innerHTML = '<option value="">--</option>';
+                v.sizes.forEach(function (s) {
+                    sizeSel.innerHTML += '<option value="' + s.id + '"' + (data && data.IMaSize === s.id ? ' selected' : '') + '>' + s.name + '</option>';
+                });
+                mauSel.innerHTML = '<option value="">--</option>';
+                v.maus.forEach(function (m) {
+                    mauSel.innerHTML += '<option value="' + m.id + '"' + (data && data.IMaMau === m.id ? ' selected' : '') + '>' + m.name + '</option>';
+                });
+                var hidden = tr.querySelector('.product-sel').parentNode.querySelector('input[type=hidden]');
+                if (hidden) hidden.value = prodSel.value;
+            }
+
+            prodSel.addEventListener('change', function () {
+                var hid = tr.querySelector('input[type=hidden]');
+                if (hid) hid.value = prodSel.value;
+                fillVariants();
+            });
+
+            if (data && data.IMaSp) fillVariants();
+        }
+
+        // restore lines on validation error
+        @if (Model.Lines.Any())
+        {
+            <text>
+            var savedLines = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.Lines));
+            savedLines.forEach(function (l) { addLine(l); });
+            </text>
+        }
+        else
+        {
+            <text>addLine();</text>
+        }
+    </script>
+}
