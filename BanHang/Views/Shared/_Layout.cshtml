@@ -1,0 +1,106 @@
+@functions {
+    private bool IsActive(string controller)
+    {
+        return ViewContext.RouteData.Values["controller"]?.ToString() == controller;
+    }
+}
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - Quản lý Cửa hàng Thể thao</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/admin.css" asp-append-version="true" />
+    @await RenderSectionAsync("Styles", required: false)
+</head>
+<body>
+    <div class="admin-shell">
+        <!-- SIDEBAR -->
+        <aside class="admin-sidebar" id="sidebar">
+            <div class="admin-brand">
+                <span class="admin-brand-logo">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="6.5" y1="6.5" x2="17.5" y2="17.5"/><line x1="20.5" y1="17.5" x2="23.5" y2="14.5"/><line x1="23.5" y1="20.5" x2="17.5" y2="14.5"/><line x1="6.5" y1="17.5" x2="17.5" y2="6.5"/><line x1="14.5" y1="3.5" x2="20.5" y2="9.5"/><line x1="3.5" y1="14.5" x2="9.5" y2="20.5"/></svg>
+                </span>
+                <span class="admin-brand-text">Thể Thao Quản Lý</span>
+            </div>
+
+            <nav class="admin-nav">
+                <a class="admin-nav-link ripple @(IsActive("BanHang") ? "active" : "")" asp-controller="BanHang" asp-action="Index"><span class="nav-text">Bán hàng</span></a>
+                <a class="admin-nav-link ripple @(IsActive("HoaDon") ? "active" : "")" asp-controller="HoaDon" asp-action="Index"><span class="nav-text">Hóa đơn</span></a>
+            </nav>
+
+            <!-- Sidebar footer : profile + dropdown -->
+            @if (User.Identity?.IsAuthenticated == true)
+            {
+                var initial = User.Identity.Name?.Substring(0, 1).ToUpper();
+                <div class="admin-sidebar-footer">
+                    <div class="profile-wrap" id="profileWrap">
+                        <div class="admin-user-card" id="profileToggle" role="button">
+                            <div class="admin-user-avatar">@initial</div>
+                            <div class="admin-user-card-info">
+                                <div class="admin-user-card-name">@User.Identity.Name</div>
+                                <div class="admin-user-card-role">@(User.IsInRole("Admin") ? "Quản trị viên" : User.IsInRole("Bán hàng") ? "Nhân viên bán hàng" : User.IsInRole("Kế toán") ? "Kế toán" : "Nhân viên")</div>
+                            </div>
+                        </div>
+                        <div class="profile-dropdown" id="profileDropdown">
+                            <div class="profile-dd-head">
+                                <div class="admin-user-avatar">@initial</div>
+                                <div>
+                                    <div class="profile-dd-name">@User.Identity.Name</div>
+                                    <div class="profile-dd-role">@(User.IsInRole("Admin") ? "Quản trị viên" : User.IsInRole("Bán hàng") ? "Nhân viên bán hàng" : User.IsInRole("Kế toán") ? "Kế toán" : "Nhân viên")</div>
+                                </div>
+                            </div>
+                            <div class="profile-dd-sep"></div>
+                            <a class="profile-dd-logout" asp-controller="Account" asp-action="ChangePassword" style="text-decoration:none;">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                                Đổi mật khẩu
+                            </a>
+                            <form asp-controller="Account" asp-action="Logout" method="post" class="m-0">
+                                <button type="submit" class="profile-dd-logout">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+                                    Đăng xuất
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            }
+        </aside>
+
+        <!-- Main -->
+        <div class="admin-main">
+            <header class="admin-topbar">
+                <button class="admin-toggle" id="sidebarToggle" aria-label="Toggle sidebar">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+                </button>
+                <div class="admin-topbar-title">@ViewData["Title"]</div>
+                <div class="admin-user">
+                    @if (User.Identity?.IsAuthenticated == true)
+                    {
+                        <span class="admin-user-name">@User.Identity.Name</span>
+                        <span class="admin-user-role">@(User.IsInRole("Admin") ? "Admin" : User.IsInRole("Bán hàng") ? "Bán hàng" : User.IsInRole("Kế toán") ? "Kế toán" : "Nhân viên")</span>
+                    }
+                    else
+                    {
+                        <a class="btn btn-sm btn-accent" asp-controller="Account" asp-action="Login">Đăng nhập</a>
+                    }
+                </div>
+            </header>
+            <main class="admin-content">
+                @RenderBody()
+            </main>
+        </div>
+    </div>
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+    <script src="~/js/admin.js" asp-append-version="true"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>
+

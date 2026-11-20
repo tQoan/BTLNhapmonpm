@@ -1,0 +1,326 @@
+@model QuanLyCuaHangTheThao.Models.HoaDonViewModel
+@{
+    ViewData["Title"] = "Bán hàng";
+    var khachHangs = (List<QuanLyCuaHangTheThao.Models.Scaffold.TblKhachHang>)ViewBag.KhachHangs;
+    var sanPhams = (List<QuanLyCuaHangTheThao.Models.Scaffold.TblSanPham>)ViewBag.SanPhams;
+    var variants = (string)ViewBag.VariantsJson;
+
+    // Fixed bank transfer account (chuyển khoản)
+    var bankName = "Ngân hàng MBbank";
+    var bankAccount = "0339815206";
+    var bankHolder = "CỬA HÀNG THỂ THAO";
+    var bankBin = "970422"; // MB Bank BIN cho VietQR
+}
+<div class="page-head">
+    <div>
+        <h1 class="page-title">Bán hàng</h1>
+        <div class="page-subtitle">Lập hóa đơn bán hàng và thanh toán</div>
+    </div>
+</div>
+<div class="card-fold card">
+    <div class="card-header">Thanh toán hóa đơn</div>
+    <div class="card-body">
+        <form asp-action="Index" method="post" id="hoaDonForm">
+            <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+            <div class="row g-3 align-items-end mb-4">
+                <div class="col-md-3">
+                    <label asp-for="IMaKh" class="form-label">Khách hàng</label>
+                    <select asp-for="IMaKh" class="form-select form-select-fold">
+                        <option value="">-- Khách lẻ --</option>
+                        @foreach (var kh in khachHangs)
+                        {
+                            <option value="@kh.IMaKh">@kh.STenKh</option>
+                        }
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <label asp-for="SPhuongThucTt" class="form-label">Phương thức TT</label>
+                    <select asp-for="SPhuongThucTt" class="form-select form-select-fold">
+                        <option>Tiền mặt</option>
+                        <option>Chuyển khoản</option>
+                        <option>Thẻ</option>
+                        <option>VNPay</option>
+                        <option>MoMo</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <label asp-for="FGiamGia" class="form-label">Giảm giá (%)</label>
+                    <input asp-for="FGiamGia" class="form-control form-control-fold" type="number" min="0" max="100" id="giamGia" />
+                </div>
+                <div class="col-md-3">
+                    <label asp-for="FTienKhachTra" class="form-label" id="lblKhachTra">Tiền khách trả</label>
+                    <input asp-for="FTienKhachTra" class="form-control form-control-fold" type="number" step="0.01" min="0" id="tienKhachTra" />
+                </div>
+                <div class="col-md-2 d-grid">
+                    <button type="button" class="btn btn-light" onclick="addLine()">+ Thêm dòng</button>
+                </div>
+            </div>
+
+            <table class="table table-fold align-middle">
+                <thead>
+                    <tr>
+                        <th style="width:24%">Sản phẩm</th>
+                        <th style="width:13%">Kích thước</th>
+                        <th style="width:13%">Màu sắc</th>
+                        <th style="width:13%">Số lượng</th>
+                        <th style="width:17%">Đơn giá</th>
+                        <th style="width:12%">Còn</th>
+                        <th style="width:8%"></th>
+                    </tr>
+                </thead>
+                <tbody id="linesBody"></tbody>
+            </table>
+
+            <div class="row justify-content-end mt-3">
+                <div class="col-md-4">
+                    <div class="d-flex justify-content-between py-1"><span class="text-secondary">Tổng tiền gốc</span><span id="sumGoc" class="fw-medium">0</span></div>
+                    <div class="d-flex justify-content-between py-1"><span class="text-secondary">Giảm giá</span><span id="sumGiam" class="fw-medium">0</span></div>
+                    <div class="d-flex justify-content-between py-2 border-top fs-5"><span>Phải thanh toán</span><span id="sumThanhToan" class="fw-semibold">0</span></div>
+                    <div class="d-flex justify-content-between py-1 text-success"><span class="text-secondary">Tiền trả lại</span><span id="sumTraLai">0</span></div>
+                </div>
+            </div>
+
+            <!-- Bank transfer info (chỉ hiện khi phương thức = Chuyển khoản) -->
+            <div class="row mt-3" id="bankInfo" style="display:none;">
+                <div class="col-md-6">
+                    <div class="card-fold card">
+                        <div class="card-header d-flex align-items-center gap-2" style="color:var(--accent)">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
+                            Thông tin chuyển khoản
+                        </div>
+                        <div class="card-body">
+                            <div class="row g-3 align-items-center">
+                                <div class="col-md-7">
+                                    <div class="d-flex justify-content-between py-2 border-bottom"><span class="text-secondary">Ngân hàng</span><span class="fw-medium">@bankName</span></div>
+                                    <div class="d-flex justify-content-between py-2 border-bottom"><span class="text-secondary">Số tài khoản</span><span class="fw-semibold" style="color:var(--accent);letter-spacing:.5px">@bankAccount</span></div>
+                                    <div class="d-flex justify-content-between py-2 border-bottom"><span class="text-secondary">Chủ tài khoản</span><span class="fw-medium">@bankHolder</span></div>
+                                    <div class="d-flex justify-content-between py-2"><span class="text-secondary">Số tiền chuyển</span><span class="fw-semibold fs-5" id="bankAmount" style="color:var(--accent)">0 đ</span></div>
+                                </div>
+                                <div class="col-md-5 text-center">
+                                    <div class="d-inline-block p-2" style="background:#fff;border-radius:8px;">
+                                        <img id="bankQr" src="" alt="Mã QR chuyển khoản" style="width:150px;height:150px;object-fit:contain;" />
+                                        <div class="small text-dark mt-1">Quét mã QR để chuyển khoản</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="d-flex align-items-center gap-2 bg-accent-subtle rounded p-2 mt-2">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                                <span class="small">Nội dung chuyển khoản ghi: <strong id="bankRefCode" style="color:var(--accent)">-</strong></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="d-flex justify-content-end gap-2 mt-3">
+                <button type="button" class="btn btn-outline-light" onclick="location.reload()">Làm mới</button>
+                <button type="submit" class="btn btn-light px-4">Lưu &amp; in hóa đơn</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        var products = [
+            @foreach (var sp in sanPhams)
+            {
+                <text>{ id: @sp.IMaSp, name: '@sp.STenSp.Replace("'", "\\'")' },</text>
+            }
+        ];
+        var variants = @Html.Raw(variants);
+
+        var rowIndex = 0;
+
+        // Mã chuyển khoản + QR VietQR
+        var qrHost = 'https://img.vietqr.io/image/@bankBin-@bankAccount-compact2.png';
+        var transCode = '';
+
+        function genTransCode() {
+            var d = new Date();
+            var pad = function (n, l) { n = String(n); while (n.length < l) n = '0' + n; return n; };
+            var rnd = Math.floor(1000 + Math.random() * 9000);
+            return 'SP' + pad(d.getDate(), 2) + pad(d.getHours(), 2) + pad(d.getMinutes(), 2) + rnd;
+        }
+
+        function updateBankQr() {
+            var bankInfo = document.getElementById('bankInfo');
+            if (!bankInfo || bankInfo.style.display === 'none') return;
+            var thanhToan = parseFloat(document.getElementById('sumThanhToan').textContent.replace(/[^0-9.-]/g, '')) || 0;
+            var amount = Math.round(thanhToan * 100) / 100;
+            if (!transCode) transCode = genTransCode();
+            var content = encodeURIComponent(transCode + ' - thanh toan hoa don');
+            var qr = document.getElementById('bankQr');
+            qr.src = qrHost + '?amount=' + amount + '&addInfo=' + content;
+            document.getElementById('bankRefCode').textContent = transCode;
+        }
+        function addLine(data) {
+            var tbody = document.getElementById('linesBody');
+            var tr = document.createElement('tr');
+            tr.id = 'row-' + rowIndex;
+
+            var prodOpts = '<option value="">-- Chọn --</option>';
+            products.forEach(function (p) {
+                prodOpts += '<option value="' + p.id + '"' + (data && data.IMaSp === p.id ? ' selected' : '') + '>' + p.name + '</option>';
+            });
+
+            tr.innerHTML =
+                '<td><select class="form-select form-select-fold product-sel" data-i="' + rowIndex + '">' + prodOpts + '</select></td>' +
+                '<td><select class="form-select form-select-fold size-sel" name="Lines[' + rowIndex + '].IMaSize" data-i="' + rowIndex + '"><option value="">--</option></select></td>' +
+                '<td><select class="form-select form-select-fold mau-sel" name="Lines[' + rowIndex + '].IMaMau" data-i="' + rowIndex + '"><option value="">--</option></select></td>' +
+                '<td><input class="form-control form-control-fold qty" type="number" min="1" name="Lines[' + rowIndex + '].ISoLuong" value="' + ((data && data.ISoLuong) || 1) + '" data-i="' + rowIndex + '" /></td>' +
+                '<td><input class="form-control form-control-fold giasel" type="number" step="0.01" min="0" name="Lines[' + rowIndex + '].FDonGia" value="' + ((data && data.FDonGia) || 0) + '" data-i="' + rowIndex + '" /></td>' +
+                '<td class="ton-cell text-center" data-i="' + rowIndex + '" style="color:#8fd68f;">-</td>' +
+                '<td><button type="button" class="btn btn-sm btn-outline-danger" onclick="removeLine(' + rowIndex + ')">Xóa</button></td>';
+
+            var hidden = document.createElement('input');
+            hidden.type = 'hidden';
+            hidden.name = 'Lines[' + rowIndex + '].IMaSp';
+            hidden.value = data ? (data.IMaSp || 0) : 0;
+            tr.querySelector('.product-sel').parentNode.appendChild(hidden);
+
+            tbody.appendChild(tr);
+            attachRow(tr, rowIndex, data);
+            rowIndex++;
+        }
+
+        function removeLine(id) {
+            var row = document.getElementById('row-' + id);
+            if (row) row.remove();
+            recalc();
+        }
+
+        function attachRow(tr, idx, data) {
+            var prodSel = tr.querySelector('.product-sel');
+            var sizeSel = tr.querySelector('.size-sel');
+            var mauSel = tr.querySelector('.mau-sel');
+            var giaInput = tr.querySelector('.giasel');
+            var tonCell = tr.querySelector('.ton-cell');
+
+            function currentTon() {
+                var pid = parseInt(prodSel.value || 0);
+                var sid = parseInt(sizeSel.value || 0);
+                var mid = parseInt(mauSel.value || 0);
+                var v = variants[pid];
+                if (!v) return 0;
+                return v.ton[(sid + '-' + mid)] || 0;
+            }
+
+            function fillVariants() {
+                var pid = parseInt(prodSel.value || 0);
+                var v = variants[pid] || { sizes: [], maus: [], gb: 0 };
+                sizeSel.innerHTML = '<option value="">--</option>';
+                v.sizes.forEach(function (s) {
+                    sizeSel.innerHTML += '<option value="' + s.id + '"' + (data && data.IMaSize === s.id ? ' selected' : '') + '>' + s.name + '</option>';
+                });
+                mauSel.innerHTML = '<option value="">--</option>';
+                v.maus.forEach(function (m) {
+                    mauSel.innerHTML += '<option value="' + m.id + '"' + (data && data.IMaMau === m.id ? ' selected' : '') + '>' + m.name + '</option>';
+                });
+                if (!data || !data.FDonGia) giaInput.value = v.gb || 0;
+                var hid = tr.querySelector('.product-sel').parentNode.querySelector('input[type=hidden]');
+                if (hid) hid.value = prodSel.value;
+                refreshTon();
+            }
+
+            function refreshTon() {
+                tonCell.textContent = currentTon();
+                recalc();
+            }
+
+            [prodSel, sizeSel, mauSel].forEach(function (s) {
+                s.addEventListener('change', function () {
+                    var hid = tr.querySelector('input[type=hidden]');
+                    if (hid && s === prodSel) hid.value = prodSel.value;
+                    if (s === prodSel) {
+                        var v = variants[parseInt(prodSel.value || 0)];
+                        giaInput.value = (v && v.gb) || 0;
+                        fillVariants();
+                    } else {
+                        refreshTon();
+                    }
+                });
+            });
+            giaInput.addEventListener('input', recalc);
+            tr.querySelector('.qty').addEventListener('input', recalc);
+
+            if (data && data.IMaSp) fillVariants();
+        }
+
+        function recalc() {
+            var sum = 0;
+            document.querySelectorAll('#linesBody tr').forEach(function (tr) {
+                var qty = parseFloat(tr.querySelector('.qty').value || 0);
+                var gia = parseFloat(tr.querySelector('.giasel').value || 0);
+                sum += qty * gia;
+            });
+            var giam = parseFloat(document.getElementById('giamGia').value || 0);
+            var giamAmount = sum * giam / 100;
+            var thanhToan = sum - giamAmount;
+            setMoney('sumGoc', sum);
+            setMoney('sumGiam', giamAmount);
+            setMoney('sumThanhToan', thanhToan);
+
+            var khachTra = parseFloat(document.getElementById('tienKhachTra').value || 0);
+            var traLai = (khachTra - thanhToan) > 0 ? khachTra - thanhToan : 0;
+            setMoney('sumTraLai', traLai);
+
+            // Số tiền chuyển khoản luôn khóa cứng = tổng phải thanh toán
+            setMoney('bankAmount', thanhToan);
+            var tienKhachTra = document.getElementById('tienKhachTra');
+            if (document.getElementById('SPhuongThucTt').value === 'Chuyển khoản' && tienKhachTra.disabled) {
+                tienKhachTra.value = Math.round(thanhToan * 100) / 100;
+            }
+            updateBankQr();
+        }
+
+        function setMoney(id, val) {
+            document.getElementById(id).textContent = Math.round(val * 100) / 100 + ' đ';
+        }
+
+        function togglePayment() {
+            var method = document.getElementById('SPhuongThucTt').value;
+            var bankInfo = document.getElementById('bankInfo');
+            var lblKhachTra = document.getElementById('lblKhachTra');
+            var tienKhachTra = document.getElementById('tienKhachTra');
+            var sumTraLaiRow = document.getElementById('sumTraLai').closest('.d-flex');
+            if (method === 'Chuyển khoản') {
+                bankInfo.style.display = '';
+                transCode = genTransCode(); // mã mới cho từng hóa đơn
+                // Khóa cứng số tiền: khách trả = tổng phải thanh toán, ẩn tiền trả lại
+                lblKhachTra.textContent = 'Số tiền chuyển khoản';
+                tienKhachTra.disabled = true;
+                if (sumTraLaiRow) sumTraLaiRow.style.display = 'none';
+            } else {
+                bankInfo.style.display = 'none';
+                lblKhachTra.textContent = 'Tiền khách trả';
+                tienKhachTra.disabled = false;
+                if (sumTraLaiRow) sumTraLaiRow.style.display = '';
+            }
+            recalc();
+        }
+
+        ['giamGia', 'tienKhachTra'].forEach(function (id) {
+            document.getElementById(id).addEventListener('input', recalc);
+        });
+
+        var paySelect = document.getElementById('SPhuongThucTt');
+        if (paySelect) {
+            paySelect.addEventListener('change', togglePayment);
+            togglePayment();
+        }
+
+        @if (Model.Lines.Any())
+        {
+            <text>
+            var savedLines = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.Lines));
+            savedLines.forEach(function (l) { addLine(l); });
+            </text>
+        }
+        else
+        {
+            <text>addLine();</text>
+        }
+    </script>
+}

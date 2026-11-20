@@ -1,0 +1,90 @@
+@model List<QuanLyCuaHangTheThao.Models.Scaffold.VInHoaDon>
+@{
+    Layout = null;
+    var rows = Model;
+    var first = rows.First();
+}
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="utf-8" />
+    <title>Hóa đơn #@ViewBag.MaHD</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: "Segoe UI", Arial, sans-serif; color: #111; padding: 40px; }
+        .header { text-align: center; margin-bottom: 24px; }
+        .shop-name { font-size: 22px; font-weight: 700; letter-spacing: 1px; }
+        .title { font-size: 18px; font-weight: 600; margin-top: 4px; }
+        .info { display: flex; justify-content: space-between; margin-bottom: 6px; font-size: 13px; }
+        table { width: 100%; border-collapse: collapse; margin-top: 16px; font-size: 13px; }
+        th, td { border: 1px solid #999; padding: 6px 8px; text-align: left; }
+        th { background: #eee; }
+        .num { text-align: right; }
+        .summary { margin-top: 16px; margin-left: auto; width: 320px; font-size: 13px; }
+        .summary div { display: flex; justify-content: space-between; padding: 3px 0; }
+        .total { font-weight: 700; font-size: 15px; border-top: 1px solid #999; margin-top: 4px; padding-top: 6px; }
+        .footer { margin-top: 40px; display: flex; justify-content: space-between; font-size: 13px; }
+        .sign { text-align: center; margin-top: 40px; }
+        @@media print { body { padding: 10px; } }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="shop-name">CỬA HÀNG ĐỒ THỂ THAO FOLDCRAFT</div>
+        <div class="title">HÓA ĐƠN BÁN HÀNG</div>
+        <div style="font-size:12px; margin-top:4px;">Mã hóa đơn: #@ViewBag.MaHD</div>
+    </div>
+
+    <div>
+        <div class="info"><span>Ngày lập:</span><span>@(((DateTime)ViewBag.NgayLap).ToString("dd/MM/yyyy HH:mm"))</span></div>
+        <div class="info"><span>Khách hàng:</span><span>@(ViewBag.KhachHang ?? "Khách lẻ")</span></div>
+        <div class="info"><span>Điện thoại:</span><span>@(ViewBag.DienThoaiKH ?? "-")</span></div>
+        <div class="info"><span>Nhân viên:</span><span>@ViewBag.NhanVien</span></div>
+    </div>
+
+    <table>
+        <thead>
+            <tr><th>STT</th><th>Sản phẩm</th><th>Size</th><th>Màu</th><th class="num">SL</th><th class="num">Đơn giá</th><th class="num">Thành tiền</th></tr>
+        </thead>
+        <tbody>
+            @for (var i = 0; i < rows.Count; i++)
+            {
+                <tr>
+                    <td>@(i + 1)</td>
+                    <td>@rows[i].STenSp</td>
+                    <td>@rows[i].STenSize</td>
+                    <td>@rows[i].STenMau</td>
+                    <td class="num">@rows[i].ISoLuong</td>
+                    <td class="num">@rows[i].FDonGia.ToString("#,##0") đ</td>
+                    <td class="num">@((rows[i].ISoLuong * rows[i].FDonGia).ToString("#,##0")) đ</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+    <div class="summary">
+        <div><span>Tổng tiền:</span><span>@(((decimal)ViewBag.TongTien).ToString("#,##0")) đ</span></div>
+        <div><span>Giảm giá:</span><span>@ViewBag.GiamGia%</span></div>
+        <div class="total"><span>Phải thanh toán:</span><span>@(((decimal)ViewBag.ThanhToan).ToString("#,##0")) đ</span></div>
+        <div><span>Phương thức TT:</span><span>@ViewBag.PhuongThuc</span></div>
+        @if (((string)ViewBag.PhuongThuc) == "Tiền mặt")
+        {
+            <div><span>Khách trả:</span><span>@(((decimal)ViewBag.TienKhachTra).ToString("#,##0")) đ</span></div>
+            <div><span>Trả lại:</span><span>@(((decimal)ViewBag.TienTraLai).ToString("#,##0")) đ</span></div>
+        }
+    </div>
+
+    <div class="footer">
+        <div class="sign">
+            <div style="font-weight:600;">Khách hàng</div>
+            <div style="margin-top:60px;">(Ký, ghi rõ họ tên)</div>
+        </div>
+        <div class="sign">
+            <div style="font-weight:600;">Người bán hàng</div>
+            <div style="margin-top:60px;">(Ký, ghi rõ họ tên)</div>
+        </div>
+    </div>
+
+    <script>window.print();</script>
+</body>
+</html>

@@ -1,0 +1,50 @@
+@model List<QuanLyCuaHangTheThao.Models.Scaffold.TblChiTietHoaDon>
+@{
+    ViewData["Title"] = "Chi tiết hóa đơn";
+    var hd = (QuanLyCuaHangTheThao.Models.Scaffold.TblHoaDon)ViewBag.HoaDon;
+}
+<a class="btn btn-sm btn-outline-light mb-3" asp-action="Index">← Danh sách hóa đơn</a>
+<div class="card-fold card">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <span>Hóa đơn #@hd.IMaHd</span>
+        <a class="btn btn-sm btn-light" asp-action="In" asp-route-id="@hd.IMaHd" target="_blank">In hóa đơn</a>
+    </div>
+    <div class="card-body">
+        <div class="row g-3 mb-4">
+            <div class="col-md-3"><div class="text-secondary">Ngày lập</div><div class="fw-medium">@hd.DNgayLap.ToString("dd/MM/yyyy HH:mm")</div></div>
+            <div class="col-md-3"><div class="text-secondary">Khách hàng</div><div class="fw-medium">@(hd.IMaKhNavigation?.STenKh ?? "Khách lẻ")</div></div>
+            <div class="col-md-3"><div class="text-secondary">Nhân viên</div><div class="fw-medium">@hd.IMaNvNavigation?.STenNv</div></div>
+            <div class="col-md-3"><div class="text-secondary">Phương thức</div><div class="fw-medium">@hd.SPhuongThucTt</div></div>
+        </div>
+        <table class="table table-fold">
+            <thead>
+                <tr><th>Sản phẩm</th><th>Kích thước</th><th>Màu sắc</th><th class="text-end">Số lượng</th><th class="text-end">Đơn giá</th><th class="text-end">Thành tiền</th></tr>
+            </thead>
+            <tbody>
+                @foreach (var line in Model)
+                {
+                    <tr>
+                        <td>@line.TblSanPhamTblKichThuoc?.IMaSpNavigation?.STenSp</td>
+                        <td>@line.TblSanPhamTblKichThuoc?.IMaSizeNavigation?.STenSize</td>
+                        <td>@line.TblSanPhamTblMauSac?.IMaMauNavigation?.STenMau</td>
+                        <td class="text-end">@line.ISoLuong</td>
+                        <td class="text-end">@line.FDonGia.ToString("#,##0") ₫</td>
+                        <td class="text-end">@((line.ISoLuong * line.FDonGia).ToString("#,##0")) ₫</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+        <div class="row justify-content-end">
+            <div class="col-md-4">
+                <div class="d-flex justify-content-between py-1"><span class="text-secondary">Tổng tiền gốc</span><span>@hd.FTongTien.ToString("#,##0") ₫</span></div>
+                <div class="d-flex justify-content-between py-1"><span class="text-secondary">Giảm giá</span><span>@hd.FGiamGia%</span></div>
+                <div class="d-flex justify-content-between py-2 border-top fs-5"><span>Thanh toán</span><span class="fw-semibold">@hd.FThanhToan.ToString("#,##0") ₫</span></div>
+                @if (hd.SPhuongThucTt == "Tiền mặt")
+                {
+                    <div class="d-flex justify-content-between py-1"><span class="text-secondary">Khách trả</span><span>@hd.FTienKhachTra.ToString("#,##0") ₫</span></div>
+                    <div class="d-flex justify-content-between py-1"><span class="text-secondary">Trả lại</span><span>@hd.FTienTraLai.ToString("#,##0") ₫</span></div>
+                }
+            </div>
+        </div>
+    </div>
+</div>
