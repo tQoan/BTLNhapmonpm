@@ -1,0 +1,44 @@
+@model List<QuanLyCuaHangTheThao.Models.Scaffold.TblChiTietPhieuNhap>
+@{
+    ViewData["Title"] = "Chi tiết phiếu nhập";
+    var phieu = (QuanLyCuaHangTheThao.Models.Scaffold.TblPhieuNhap)ViewBag.Phieu;
+}
+<a class="btn btn-sm btn-outline-light mb-3" asp-action="Index">← Danh sách phiếu nhập</a>
+<a class="btn btn-sm btn-accent mb-3" asp-action="Edit" asp-route-id="@phieu.IMaPn">✎ Sửa phiếu</a>
+<div class="card-fold card">
+    <div class="card-header">Phiếu nhập #@phieu.IMaPn</div>
+    <div class="card-body">
+        <div class="row g-3 mb-4">
+            <div class="col-md-4"><div class="text-secondary">Ngày nhập</div><div class="fw-medium">@phieu.DNgayNhap.ToString("dd/MM/yyyy HH:mm")</div></div>
+            <div class="col-md-4"><div class="text-secondary">Nhà cung cấp</div><div class="fw-medium">@phieu.IMaNccNavigation?.STenNcc</div></div>
+            <div class="col-md-4"><div class="text-secondary">Nhân viên</div><div class="fw-medium">@phieu.IMaNvNavigation?.STenNv</div></div>
+        </div>
+        <table class="table table-fold">
+            <thead>
+                <tr><th>Sản phẩm</th><th>Kích thước</th><th>Màu sắc</th><th class="text-end">Số lượng</th><th class="text-end">Đơn giá nhập</th><th class="text-end">Thành tiền</th></tr>
+            </thead>
+            <tbody>
+                @foreach (var line in Model)
+                {
+                    var tenSp = line.TblSanPhamTblKichThuoc?.IMaSpNavigation?.STenSp ?? "";
+                    var tenSize = line.TblSanPhamTblKichThuoc?.IMaSizeNavigation?.STenSize ?? "";
+                    var tenMau = line.TblSanPhamTblMauSac?.IMaMauNavigation?.STenMau ?? "";
+                    <tr>
+                        <td>@tenSp</td>
+                        <td>@tenSize</td>
+                        <td>@tenMau</td>
+                        <td class="text-end">@line.ISoLuong</td>
+                        <td class="text-end">@line.FDonGiaNhap.ToString("#,##0") ₫</td>
+                        <td class="text-end">@((line.ISoLuong * line.FDonGiaNhap).ToString("#,##0")) ₫</td>
+                    </tr>
+                }
+            </tbody>
+            <tfoot>
+                <tr>
+                    <td colspan="5" class="text-end fw-semibold">Tổng giá trị nhập</td>
+                    <td class="text-end fw-semibold">@Model.Sum(l => l.ISoLuong * l.FDonGiaNhap).ToString("#,##0") ₫</td>
+                </tr>
+            </tfoot>
+        </table>
+    </div>
+</div>

@@ -1,0 +1,29 @@
+@model List<QuanLyCuaHangTheThao.Models.Scaffold.VThi>
+@{ ViewData["Title"] = "Tồn kho theo hạn dùng"; }
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1 class="h3 mb-0">Tồn kho theo hạn dùng</h1>
+    <a class="btn btn-outline-light" asp-action="Index">Tồn kho chung</a>
+</div>
+<div class="card-fold card">
+    <div class="card-body p-0">
+        <table class="table table-fold mb-0">
+            <thead><tr><th>Sản phẩm</th><th>Xuất xứ</th><th>Kích thước</th><th>Màu sắc</th><th class="text-end">Tồn</th><th>Ngày hết hạn</th><th>Trạng thái</th></tr></thead>
+            <tbody>
+                @foreach (var t in Model)
+                {
+                    var cls = t.STrangThaiHanDung == "Đã hết hạn" ? "text-danger" : t.STrangThaiHanDung == "Sắp hết hạn" ? "text-warning" : "text-success";
+                    <tr>
+                        <td>@t.STenSp</td>
+                        <td>@t.SXuatXu</td>
+                        <td>@t.STenSize</td>
+                        <td>@t.STenMau</td>
+                        <td class="text-end">@t.ISoLuongTon</td>
+                        <td>@(t.DNgayHetHan.HasValue ? t.DNgayHetHan.Value.ToString("dd/MM/yyyy") : "-")</td>
+                        <td><span class="badge @cls">@t.STrangThaiHanDung</span></td>
+                    </tr>
+                }
+                @if (!Model.Any()) { <tr><td colspan="7" class="text-center py-4 text-secondary">Không có dữ liệu.</td></tr> }
+            </tbody>
+        </table>
+    </div>
+</div>

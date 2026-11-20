@@ -1,0 +1,79 @@
+@model QuanLyCuaHangTheThao.PaginatedList<QuanLyCuaHangTheThao.Models.Scaffold.TblPhieuNhap>
+@{
+    ViewData["Title"] = "Nhập hàng";
+}
+<div class="page-head">
+    <div>
+        <h1 class="page-title">Phiếu nhập hàng</h1>
+        <div class="page-subtitle">Lịch sử các đợt nhập hàng từ nhà cung cấp</div>
+    </div>
+    <a class="btn btn-accent" asp-action="Create">+ Lập phiếu nhập</a>
+</div>
+@if (TempData["Success"] != null) { <div class="alert alert-success py-2">@TempData["Success"]</div> }
+@if (TempData["Error"] != null) { <div class="alert alert-danger py-2">@TempData["Error"]</div> }
+
+<div class="stat-strip">
+    <div class="stat-card">
+        <div class="stat-label">Tổng phiếu nhập</div>
+        <div class="stat-value">@ViewBag.TongPhieu</div>
+        <div class="stat-caption">đợt nhập hàng</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-label">Chi tiết nhập</div>
+        <div class="stat-value">@ViewBag.TongChiTiet</div>
+        <div class="stat-caption">dòng mặt hàng</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-label">Tổng giá trị nhập</div>
+        <div class="stat-value accent">@ViewBag.TongGiaTri.ToString("#,##0") <small style="font-size:.8rem">đ</small></div>
+        <div class="stat-caption">theo giá nhập</div>
+    </div>
+</div>
+
+<div class="toolbar">
+    <form method="get" class="toolbar-search">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <input type="text" class="form-control form-control-fold" name="search" value="@ViewBag.Search" placeholder="Tìm mã phiếu, nhà cung cấp..." />
+    </form>
+    <div class="pagination-info">
+        @if (!string.IsNullOrWhiteSpace((string?)ViewBag.Search))
+        {
+            <span>Kết quả cho "<strong>@ViewBag.Search</strong>"</span>
+        }
+    </div>
+</div>
+
+<div class="card-fold card">
+    <div class="card-body p-0">
+        <table class="table table-fold mb-0">
+            <thead><tr><th style="width:80px">Mã PN</th><th>Ngày nhập</th><th>Nhà cung cấp</th><th>Nhân viên nhập</th><th class="text-end">Thao tác</th></tr></thead>
+            <tbody>
+                @foreach (var pn in Model)
+                {
+                    <tr>
+                        <td><span class="badge-fold badge-accent">#@pn.IMaPn</span></td>
+                        <td>@pn.DNgayNhap.ToString("dd/MM/yyyy HH:mm")</td>
+                        <td class="fw-medium">@pn.IMaNccNavigation?.STenNcc</td>
+                        <td>@pn.IMaNvNavigation?.STenNv</td>
+                        <td class="text-end">
+                            <a class="btn btn-sm btn-outline-accent" asp-action="Detail" asp-route-id="@pn.IMaPn">Chi tiết</a>
+                            <a class="btn btn-sm btn-outline-light" asp-action="Edit" asp-route-id="@pn.IMaPn">Sửa</a>
+                            @if (User.IsInRole("Admin"))
+                            {
+                                <form method="post" asp-action="Delete" asp-route-id="@pn.IMaPn" class="d-inline" onsubmit="return confirm('Xóa phiếu nhập #@pn.IMaPn? Tồn kho sẽ được điều chỉnh giảm.');">
+                                    <button type="submit" class="btn btn-sm btn-danger">Xóa</button>
+                                </form>
+                            }
+                        </td>
+                    </tr>
+                }
+                @if (!Model.Any())
+                {
+                    <tr><td colspan="5"><div class="empty-state"><div class="empty-icon">📦</div><div>Chưa có phiếu nhập nào.</div></div></td></tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<partial name="Pager" model="Model" />
