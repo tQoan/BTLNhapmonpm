@@ -1,0 +1,30 @@
+@model QuanLyCuaHangTheThao.Models.Scaffold.TblNhaCungCap
+@{ ViewData["Title"] = "Sửa nhà cung cấp"; }
+<div class="row justify-content-center">
+    <div class="col-lg-7">
+        <div class="card-fold card">
+            <div class="card-header">Sửa nhà cung cấp</div>
+            <div class="card-body">
+                <form asp-action="Edit" method="post">
+                    <input type="hidden" asp-for="IMaNcc" />
+                    <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+                    <div class="mb-3">
+                        <label asp-for="STenNcc" class="form-label"></label>
+                        <input asp-for="STenNcc" class="form-control form-control-fold" />
+                        <span asp-validation-for="STenNcc" class="text-danger"></span>
+                    </div>
+                    <div class="mb-3">
+                        <label asp-for="SDiaChi" class="form-label"></label>
+                        <input asp-for="SDiaChi" class="form-control form-control-fold" />
+                    </div>
+                    <div class="mb-3">
+                        <label asp-for="SDienThoai" class="form-label"></label>
+                        <input asp-for="SDienThoai" class="form-control form-control-fold" />
+                    </div>
+                    <button type="submit" class="btn btn-light px-4">Lưu</button>
+                    <a class="btn btn-outline-light" asp-action="Index">Hủy</a>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
